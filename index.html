@@ -13,6 +13,61 @@
 
   <!-- JOUW JS (in de assets map) -->
   <script type="module" src="assets/index-CV8LcnsC.js"></script>
+
+  <!-- ✅ EXTRA SCRIPT: Supabase + e-mailformulier -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    // 1. VERVANG deze twee door jouw echte gegevens
+    const supabaseUrl = "https://ogrvseiqelnhczeeqeux.supabase.co";
+    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ncnZzZWlxZWxuaGN6ZWVxZXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3Njk3MDQsImV4cCI6MjA4MDM0NTcwNH0.qbZPSSDsYS_riThsI6NDf7gNaqKwhSfCnmM52Kssyhc";
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+    // 2. Wacht tot alles geladen is
+    window.addEventListener("load", () => {
+      // Zoek een formulier met een e-mailveld
+      const forms = Array.from(document.querySelectorAll("form"));
+      const form = forms.find((f) => f.querySelector('input[type="email"]'));
+
+      if (!form) {
+        console.warn("Geen formulier met e-mailveld gevonden.");
+        return;
+      }
+
+      console.log("E-mailformulier gevonden:", form);
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const emailInput = form.querySelector('input[type="email"]');
+        const email = emailInput?.value.trim();
+
+        if (!email) {
+          alert("Vul alstublieft een geldig e-mailadres in.");
+          return;
+        }
+
+        try {
+          const { error } = await supabase
+            .from("email_subscribers")
+            .insert({ email });
+
+          if (error) {
+            console.error("Supabase error:", error);
+            alert("Er ging iets mis bij het opslaan. Probeer het later opnieuw.");
+            return;
+          }
+
+          alert("BarakAllahu fiek, jouw e-mailadres is opgeslagen.");
+          form.reset();
+        } catch (err) {
+          console.error("Onverwachte fout:", err);
+          alert("Er ging iets mis. Probeer het later opnieuw.");
+        }
+      });
+    });
+  </script>
 </head>
 <body>
   <div id="root"></div>
